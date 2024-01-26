@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Popup Example</title>
+
+  <!-- Calendar Dependencies -->
+  <script src="https://cdn.jsdelivr.net/npm/simple-jscalendar@1.4.5/source/jsCalendar.min.js" integrity="sha384-F3Wc9EgweCL3C58eDn9902kdEH6bTDL9iW2JgwQxJYUIeudwhm4Wu9JhTkKJUtIJ" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/simple-jscalendar@1.4.5/source/jsCalendar.min.css" integrity="sha384-CTBW6RKuDwU/TWFl2qLavDqLuZtBzcGxBXY8WvQ0lShXglO/DsUvGkXza+6QTxs0" crossorigin="anonymous">
+
+  <!-- Popup CSS -->
+  <style>
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 512px;
+      height: 512px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    .popup-header {
+      background-color: #f0f0f0;
+      padding: 10px;
+      cursor: move;
+      user-select: none;
+    }
+
+    .popup-content {
+      padding: 20px;
+    }
+
+    .popup-resize {
+      width: 10px;
+      height: 10px;
+      background-color: #333;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      cursor: nwse-resize;
+    }
+
+    .popup-close {
+      position: absolute;
+      top: 5px;
+      right: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Calendar Element -->
+  <div class="auto-jsCalendar"></div>
+
+  <!-- Popup Element -->
+  <div class="popup" id="popup">
+    <div class="popup-header">
+      Popup Header
+      <div class="popup-close" onclick="closePopup()">X</div>
+    </div>
+    <div class="popup-content">
+      <!-- Calendar Element Inside Popup -->
+      <div class="auto-jsCalendar"></div>
+    </div>
+    <div class="popup-resize" id="popupResize"></div>
+  </div>
+
+  <!-- Popup Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(function () {
+        showPopup();
+      }, 4000);
+    });
+
+    function showPopup() {
+      var popup = document.getElementById('popup');
+      popup.style.display = 'block';
+
+      makePopupDraggable(popup);
+      makePopupResizable(popup);
+    }
+
+    function closePopup() {
+      var popup = document.getElementById('popup');
+      popup.style.display = 'none';
+    }
+
+    function makePopupDraggable(element) {
+      var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+      var header = element.querySelector('.popup-header');
+      if (header) {
+        header.onmousedown = function (e) {
+          e.preventDefault();
+          pos3 = e.clientX;
+          pos4 = e.clientY;
+          document.onmouseup = function () {
+            document.onmouseup = null;
+            document.onmousemove = null;
+          };
+          document.onmousemove = function (e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            element.style.top = (element.offsetTop - pos2) + 'px';
+            element.style.left = (element.offsetLeft - pos1) + 'px';
+          };
+        };
+      }
+    }
+
+    function makePopupResizable(element) {
+      var resizeHandle = element.querySelector('.popup-resize');
+      if (resizeHandle) {
+        resizeHandle.onmousedown = function (e) {
+          e.preventDefault();
+          var initialWidth = element.offsetWidth;
+          var initialHeight = element.offsetHeight;
+          var startX = e.clientX;
+          var startY = e.clientY;
+
+          document.onmousemove = function (e) {
+            var deltaX = e.clientX - startX;
+            var deltaY = e.clientY - startY;
+
+            element.style.width = initialWidth + deltaX + 'px';
+            element.style.height = initialHeight + deltaY + 'px';
+          };
+
+          document.onmouseup = function () {
+            document.onmousemove = null;
+            document.onmouseup = null;
+          };
+        };
+      }
+    }
+  </script>
+
+</body>
+</html>
